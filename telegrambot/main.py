@@ -36,9 +36,10 @@ def welcompage(message):
 #Каталог
 def catalog(call):
     markup = types.InlineKeyboardMarkup()
-    button1 = types.InlineKeyboardButton('Кроссовки', callback_data='sneakers')
-    button2 = types.InlineKeyboardButton('Верхняя одежда', callback_data='outerwear')
-    button3 = types.InlineKeyboardButton('Джинсы', callback_data='jeans')
+    button1 = types.InlineKeyboardButton('Кроссовки', callback_data='Sneakers')
+    button2 = types.InlineKeyboardButton('Верхняя одежда', callback_data='Outwear')
+    button3 = types.InlineKeyboardButton('Джинсы', callback_data='Jeans')
+
     button4 = types.InlineKeyboardButton('Корзина', callback_data='shoppingcart')
     button5 = types.InlineKeyboardButton('Меню', callback_data='menu')
 
@@ -79,15 +80,15 @@ def shoppingcart(call):
     bot.send_message(call.message.chat.id, call.message.caption)
     bot.answer_callback_query(call.id)
 
-#Кроссовки
-def sneakers(call):
+#Лист товаров
+def ProductSheet(call):
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton('Меню', callback_data='menu')
     btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='shoppingcart')
     markup.row(btn1)
     markup.row(btn2)
     
-    cursor.execute(f'SELECT * FROM catalog WHERE Type = "Sneakers";')
+    cursor.execute(f'SELECT * FROM catalog WHERE Type = "{call.data}";')
     data = cursor.fetchall()
     
     #print(data)
@@ -98,25 +99,6 @@ def sneakers(call):
 
     bot.answer_callback_query(call.id)
     
-#Верхняя одежда
-def outerwear(call):
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton('Меню', callback_data='menu')
-    btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='shoppingcart')
-    markup.row(btn1)
-    markup.row(btn2)
-    bot.send_photo(call.message.chat.id, photo = 'https://avatars.mds.yandex.net/i?id=a9286aae95b17e3b009796bf9412361ffc37d6b1d67460af-12151887-images-thumbs&n=13', caption='Это верхняя одежда', reply_markup=markup)
-    bot.answer_callback_query(call.id)
-
-#Джинсы
-def jeans(call):
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton('Меню', callback_data='menu')
-    btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='shoppingcart')
-    markup.row(btn1)
-    markup.row(btn2)
-    bot.send_photo(call.message.chat.id, photo = 'https://avatars.mds.yandex.net/i?id=468ba2bc8273c1daa4813407dc88529da26775a4-4559382-images-thumbs&n=13', caption='Это джинсы', reply_markup=markup)
-    bot.answer_callback_query(call.id)
 
 
 callback_map = {
@@ -125,9 +107,9 @@ callback_map = {
     'help': help_function,
     'menu': menu,
     'shoppingcart': shoppingcart,
-    'sneakers': sneakers,
-    'outerwear': outerwear,
-    'jeans': jeans
+    'Sneakers': ProductSheet,
+    'Outwear': ProductSheet,
+    'Jeans': ProductSheet,
 }
 
 bot.polling(none_stop=True)
