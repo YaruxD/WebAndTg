@@ -24,9 +24,13 @@ def welcompage(message):
     button3 = types.InlineKeyboardButton('Help', callback_data='help')
     markup.row(button1, button2, button3)
     bot.send_photo(message.chat.id, photo='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwnfyzqed8Y9tb31w1c1WdQ2AB3zKPOhMccNFliydz5GPEUqGGzz42VlBKAdIj93jR4bc&usqp=CAU', caption="Welcome to the shop!", reply_markup=markup)
-    cursor.execute('INSERT INTO telegram_users(username) values(?)', [message.from_user.username])
-    connection.commit()
-
+    
+    #Добавление в базу данных
+    cursor.execute('SELECT * FROM telegram_users WHERE username = ?', (message.from_user.username,))
+    telegram_user = cursor.fetchone()
+    if telegram_user is None:
+        cursor.execute('INSERT INTO telegram_users(username) VALUES (?)', (message.from_user.username,))
+        connection.commit()
 #Функции
 
 #Каталог
