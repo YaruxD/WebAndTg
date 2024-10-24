@@ -1,9 +1,7 @@
 import telebot
 from telebot import types
-
 import sqlite3
-connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
-cursor = connection.cursor()
+
 
 
 
@@ -24,11 +22,15 @@ def welcompage(message):
     bot.send_photo(message.chat.id, photo='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwnfyzqed8Y9tb31w1c1WdQ2AB3zKPOhMccNFliydz5GPEUqGGzz42VlBKAdIj93jR4bc&usqp=CAU', caption="Welcome to the shop!", reply_markup=markup)
     
     #Добавление в базу данных
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
     cursor.execute('SELECT * FROM telegram_users WHERE username = ?', (message.from_user.username,))
     telegram_user = cursor.fetchone()
     if telegram_user is None:
         cursor.execute('INSERT INTO telegram_users(username) VALUES (?)', (message.from_user.username,))
         connection.commit()
+    cursor.close()
+    connection.close()
 #Функции
 
 #Каталог
@@ -54,7 +56,24 @@ def catalog(call):
 #Покупка
 def get_in_shoppingcart(call):
     bot.send_message(call.message.chat.id, call.message.caption)
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT * FROM sales WHERE username =? AND product=?;', (call.message.chat.username,(call.message.caption).split(' ')[0]))
+    sale = cursor.fetchall()
+    if (sale == []):
+        cursor.execute('INSERT INTO sales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
+    elif (sale[-1][4]==1):
+        cursor.execute('INSERT INTO sales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
+    else:
+        cursor.execute('UPDATE sales SET amount = amount + 1 WHERE username =? AND product =?', [call.message.chat.username, (call.message.caption).split(' ')[0]])
+ 
+    connection.commit()
+    cursor.close()
+    connection.close()
+    print(call.message.chat.username)
     bot.answer_callback_query(call.id)
+    
 
  #Помощь   
 def help_function(call):
@@ -86,16 +105,18 @@ def ProductSheet(call):
     btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='get_in_shoppingcart')
     markup.row(btn1)
     markup.row(btn2)
-    
-    cursor.execute(f'SELECT * FROM catalog WHERE Type = "{call.data}";')
-    data = cursor.fetchall()
-    
-    #print(data)
 
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+    cursor.execute(f'SELECT * FROM catalog WHERE Type = "{call.data}";')
+    data = cursor.fetchall() 
+    #print(data)
     for i in range(len(data)):
         
         bot.send_photo(call.message.chat.id, photo=data[i][4], caption=f'{data[i][2]} \n{data[i][3]}', reply_markup=markup)
 
+    cursor.close()
+    connection.close()
     bot.answer_callback_query(call.id)
     
 
