@@ -1,6 +1,11 @@
 import telebot
 from telebot import types
 
+import sqlite3
+connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+cursor = connection.cursor()
+
+
 
 bot = telebot.TeleBot('7648629772:AAHB6GsiB_V9o98zmazwvUWI-h_lxLYY5ns')
 
@@ -19,7 +24,8 @@ def welcompage(message):
     button3 = types.InlineKeyboardButton('Help', callback_data='help')
     markup.row(button1, button2, button3)
     bot.send_photo(message.chat.id, photo='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwnfyzqed8Y9tb31w1c1WdQ2AB3zKPOhMccNFliydz5GPEUqGGzz42VlBKAdIj93jR4bc&usqp=CAU', caption="Welcome to the shop!", reply_markup=markup)
-
+    cursor.execute('INSERT INTO telegram_users(username) values(?)', [message.from_user.username])
+    connection.commit()
 
 #Функции
 
@@ -38,6 +44,8 @@ def catalog(call):
 
     bot.send_message(call.message.chat.id, "Выберете тип товара", reply_markup=markup)
     bot.answer_callback_query(call.id)
+    
+    
 
 def buy_function(call):
     bot.send_message(call.message.chat.id, "Buy function is called!")
