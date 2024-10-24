@@ -76,7 +76,7 @@ def menu(call):
 
 #Корзина
 def shoppingcart(call):
-    bot.send_message(call.message.chat.id, 'Вы добавили вещь в корзину!')
+    bot.send_message(call.message.chat.id, call.message.caption)
     bot.answer_callback_query(call.id)
 
 #Кроссовки
@@ -87,7 +87,7 @@ def sneakers(call):
     markup.row(btn1)
     markup.row(btn2)
     
-    cursor.execute('SELECT * FROM catalog WHERE Type = "Sneakers";')
+    cursor.execute(f'SELECT * FROM catalog WHERE Type = "Sneakers";')
     data = cursor.fetchall()
     
     #print(data)
