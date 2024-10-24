@@ -15,14 +15,12 @@ def handle_callback(call):
     if call.data in callback_map:
         callback_map[call.data](call)  
 
-#Приглашение
 @bot.message_handler(commands=['start'])
 def welcompage(message):
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton('Каталог', callback_data='catalog')
-    button2 = types.InlineKeyboardButton('Buy', callback_data='buy')
     button3 = types.InlineKeyboardButton('Help', callback_data='help')
-    markup.row(button1, button2, button3)
+    markup.row(button1, button3)
     bot.send_photo(message.chat.id, photo='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwnfyzqed8Y9tb31w1c1WdQ2AB3zKPOhMccNFliydz5GPEUqGGzz42VlBKAdIj93jR4bc&usqp=CAU', caption="Welcome to the shop!", reply_markup=markup)
     
     #Добавление в базу данных
@@ -35,6 +33,7 @@ def welcompage(message):
 
 #Каталог
 def catalog(call):
+    bot.delete_message(call.message.chat.id, message_id = call.message.id)
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton('Кроссовки', callback_data='Sneakers')
     button2 = types.InlineKeyboardButton('Верхняя одежда', callback_data='Outwear')
@@ -53,12 +52,13 @@ def catalog(call):
     
 
 #Покупка
-def buy_function(call):
-    bot.send_message(call.message.chat.id, "Buy function is called!")
+def get_in_shoppingcart(call):
+    bot.send_message(call.message.chat.id, call.message.caption)
     bot.answer_callback_query(call.id)
 
  #Помощь   
 def help_function(call):
+    bot.delete_message(call.message.chat.id, message_id = call.message.id)
     markup = types.InlineKeyboardMarkup()
     btn = types.InlineKeyboardButton('Меню', callback_data='menu')
     markup.row(btn)
@@ -69,22 +69,21 @@ def help_function(call):
 def menu(call):
     markup = types.InlineKeyboardMarkup()
     button1 = types.InlineKeyboardButton('Каталог', callback_data='catalog')
-    button2 = types.InlineKeyboardButton('Buy', callback_data='buy')
     button3 = types.InlineKeyboardButton('Help', callback_data='help')
-    markup.row(button1, button2, button3)
+    markup.row(button1, button3)
     bot.send_photo(call.message.chat.id, photo='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwnfyzqed8Y9tb31w1c1WdQ2AB3zKPOhMccNFliydz5GPEUqGGzz42VlBKAdIj93jR4bc&usqp=CAU', caption="Welcome to the shop!", reply_markup=markup)
     bot.answer_callback_query(call.id)
 
 #Корзина
 def shoppingcart(call):
-    bot.send_message(call.message.chat.id, call.message.caption)
-    bot.answer_callback_query(call.id)
+    pass
 
 #Лист товаров
 def ProductSheet(call):
+    bot.delete_message(call.message.chat.id, message_id = call.message.id)
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton('Меню', callback_data='menu')
-    btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='shoppingcart')
+    btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='get_in_shoppingcart')
     markup.row(btn1)
     markup.row(btn2)
     
@@ -103,7 +102,7 @@ def ProductSheet(call):
 
 callback_map = {
     'catalog': catalog,
-    'buy': buy_function,
+    'get_in_shoppingcart': get_in_shoppingcart,
     'help': help_function,
     'menu': menu,
     'shoppingcart': shoppingcart,
