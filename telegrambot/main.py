@@ -71,7 +71,7 @@ def get_in_shoppingcart(call):
     connection.commit()
     cursor.close()
     connection.close()
-    print(call.message.chat.username)
+    #print(call.message.chat.username)
     bot.answer_callback_query(call.id)
     
 
@@ -95,7 +95,19 @@ def menu(call):
 
 #Корзина
 def shoppingcart(call):
-    pass
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM sales WHERE state=0 AND username=?', [call.message.chat.username])
+    data = cursor.fetchall()
+
+    for i in data:
+        cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
+        data2 = cursor.fetchone()
+        bot.send_photo(call.message.chat.id, photo = data2[4], caption = i[2])
+        #print(data2[4])
+
+    bot.answer_callback_query(call.id)
+    #print(data)
 
 #Лист товаров
 def ProductSheet(call):
