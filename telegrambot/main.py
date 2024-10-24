@@ -86,9 +86,18 @@ def sneakers(call):
     btn2 = types.InlineKeyboardButton('Добавить в корзину', callback_data='shoppingcart')
     markup.row(btn1)
     markup.row(btn2)
-    bot.send_photo(call.message.chat.id, photo = 'https://yandex-images.clstorage.net/5Qc1GL213/4fbe6a5Cotzx/Ox6La7YlLU6KzJ3zggFcA6lTt-ianlzs_5iGM9nYz-gItoHuzy6WPMhLc1IV5-FecL9YmxUkIq5h8-qvMwdNwX8KT1-HsMhKq6gZM_KRHfcYhzfs61t8XY4t5te5SHptDeDiCahc0OtOKaQA50MkPrX6LCr0YFTY9eS9OoVAnyPK3llaIWUcLD2MLxNBQKwkOCKWf2h73SwoHLUHHDjeyEuD4Hk4HDE6_qvnITdBt1zU6dyOhgOnWjDX_wm0Mq4Bmn7KqeKXHf3MfR_SYhM_F8rwtZ3oGL0_qMzHJ8353imYY4Cau3wB-P_5hPCVECd_93tuzobTdgmDp49JlyFNM8i_uhux5L6vPz1e0sAR3LWpwvZeOhl83Sp-lMbva80a2iEzayns4_k925TiVTCkfHSYrcz3gRULcwX--uTR_uFrDOoLkGbtTY2MT_NAwK2mCpD2fQi6rj0qjJaWLlu_eJgTIYr47HHY3ih0sIdBxp_2iu3e14EXSWMn3nnUkr_h2x7ZSBBUjR_MHY6BUtEfN3nD9N65SM0-GWx0Vp2LvZuYI7LrmvzDu61ZFDBkMYbOhrt9jvcgVzuC5a-7tyCNIcgt6PnAVK_u3V_uwMPj_6TIEKU8KWqt_RnPliQeCBzYiXHQ-_oe4Vl_aSTD5dJUHiX6bUzGU1fZMGRMWufTbwGq_MiqI4e_XYzdv_FDMEwES9NkDLrKL356nmbkb7scmInRsPtLzVNYndh2sWVyF370Kl-8l_HHexBmHYg2kC1zi83KelD13ZysvH1TgoGdlhsyR4z6aj6eOoykp85bvKrogACpSm3RaN5Z1DHXUIV-ZZjN_pcSFjpzNF779RNMA2tOuIsCdL9erA6MkkDzz-QJwpTPytiMTZgP1DWMyO_q2lFiqujMEBtPmWQC5qD23Dd4n1zl0Ke4M2QP6IVSbJOo3iko8mW-jP0PPUIjIW1HWWLUvIsZnO_LLuTnk', caption='Это кеды', reply_markup=markup)
-    bot.answer_callback_query(call.id)
+    
+    cursor.execute('SELECT * FROM catalog WHERE Type = "Sneakers";')
+    data = cursor.fetchall()
+    
+    #print(data)
 
+    for i in range(len(data)):
+        
+        bot.send_photo(call.message.chat.id, photo=data[i][4], caption=f'{data[i][2]} \n{data[i][3]}', reply_markup=markup)
+
+    bot.answer_callback_query(call.id)
+    
 #Верхняя одежда
 def outerwear(call):
     markup = types.InlineKeyboardMarkup()
