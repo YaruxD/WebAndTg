@@ -40,12 +40,13 @@ def catalog(call):
     button1 = types.InlineKeyboardButton('Кроссовки', callback_data='Sneakers')
     button2 = types.InlineKeyboardButton('Верхняя одежда', callback_data='Outwear')
     button3 = types.InlineKeyboardButton('Джинсы', callback_data='Jeans')
-
     button4 = types.InlineKeyboardButton('Корзина', callback_data='shoppingcart')
+    button5 = types.InlineKeyboardButton('Купленные товары', callback_data='bought_product')
 
 
     markup.row(button1, button2, button3)
-    markup.row(button4)
+    markup.row(button4,button5)
+
 
 
     bot.send_message(call.message.chat.id, "Выберете тип товара", reply_markup=markup)
@@ -59,11 +60,11 @@ def catalog_without_delete(call):
     button3 = types.InlineKeyboardButton('Джинсы', callback_data='Jeans')
 
     button4 = types.InlineKeyboardButton('Корзина', callback_data='shoppingcart')
+    button5 = types.InlineKeyboardButton('Купленные товары', callback_data='bought_product')
 
 
     markup.row(button1, button2, button3)
-    markup.row(button4)
-
+    markup.row(button4,button5)
 
     bot.send_message(call.message.chat.id, "Выберете тип товара", reply_markup=markup)
     bot.answer_callback_query(call.id)
@@ -121,7 +122,7 @@ def shoppingcart(call):
     for i in data:
         cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
         data2 = cursor.fetchone()
-        bot.send_photo(call.message.chat.id, photo = data2[4], caption = f'{i[3]}шт. {i[2]} - {data2[5]}$  в корзине', reply_markup=markup)
+        bot.send_photo(call.message.chat.id, photo = data2[4], caption = f'{i[3]}шт. {i[2]} - {data2[5]}$ (шт)' , reply_markup=markup)
         all_price += data2[5]*int(i[3])
     if data!=[]:
         markup = types.InlineKeyboardMarkup()
@@ -215,6 +216,27 @@ def buy_all(call):
     connection.close()
     bot.answer_callback_query(call.id)
 
+def bought_product(call):
+    markup = types.InlineKeyboardMarkup()
+    btn = types.InlineKeyboardButton('Каталог', callback_data='catalog_without_delete')
+    markup.row(btn)
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM sales WHERE username=? AND state=1', [call.message.chat.username])
+    data = cursor.fetchall()
+    
+    for i in data:
+        cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
+        
+        data2 = cursor.fetchone()
+        bot.send_photo(call.message.chat.id, photo = data2[4], caption=f'{i[3]}шт. - {i[2]} - {data2[5]}$ (шт)', reply_markup=markup)
+        
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    bot.answer_callback_query(call.id)  
+
 callback_map = {
     'delete_from_shoppingcart': delete_from_shoppingcart,
     'catalog': catalog,
@@ -226,7 +248,8 @@ callback_map = {
     'Outwear': ProductSheet,
     'Jeans': ProductSheet,
     'buy': buy,
-    'buy_all': buy_all
+    'buy_all': buy_all,
+    'bought_product': bought_product
 }
 
 bot.polling(none_stop=True)
