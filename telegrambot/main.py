@@ -105,11 +105,13 @@ def help_function(call):
 def shoppingcart(call):
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton('Удалить из корзины', callback_data='delete_from_shoppingcart')
-    markup.row(btn1)
+    btn2 = types.InlineKeyboardButton('Купить', callback_data='buy')
+    markup.row(btn1, btn2)
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM sales WHERE state=0 AND username=?', [call.message.chat.username])
     data = cursor.fetchall()
+    all_price = 0
     #print(data)
     if data!= []:
         bot.send_message(call.message.chat.id, '//Вы вызвали корзину//')
@@ -119,7 +121,16 @@ def shoppingcart(call):
     for i in data:
         cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
         data2 = cursor.fetchone()
-        bot.send_photo(call.message.chat.id, photo = data2[4], caption = f'{i[3]} {i[2]} в корзине', reply_markup=markup)
+        bot.send_photo(call.message.chat.id, photo = data2[4], caption = f'{i[3]}шт. {i[2]} - {data2[5]}$  в корзине', reply_markup=markup)
+        all_price += data2[5]*int(i[3])
+    if data!=[]:
+        markup = types.InlineKeyboardMarkup()
+        btn3 = types.InlineKeyboardButton('Купить всё', callback_data='buy_all')
+        btn4 = types.InlineKeyboardButton('Каталог', callback_data='catalog')
+        markup.row(btn3)
+        markup.row(btn4)
+        bot.send_message(call.message.chat.id, f'Общая стоимость: {all_price}', reply_markup=markup)
+
         #print(data2[4])
 
     bot.answer_callback_query(call.id)
@@ -135,8 +146,9 @@ def delete_from_shoppingcart(call):
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM sales WHERE state=0 AND username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     data = cursor.fetchone()
-    #print(data)
-    if data[3] < 2:
+    if data== None:
+        pass
+    elif data[3] < 2:
         cursor.execute('DELETE FROM sales WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     else:
         cursor.execute('UPDATE sales SET amount = amount - 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
@@ -177,7 +189,31 @@ def ProductSheet(call):
     connection.close()
     bot.answer_callback_query(call.id)
     
+def buy(call):
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM sales WHERE username=? AND product=? AND state=0', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+    data = cursor.fetchone()
+    print(data)
+    cursor.execute('UPDATE sales SET state = 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+    bot.delete_message(call.message.chat.id, call.message.id)
+    bot.send_message(call.message.chat.id, f'Вы купили {data[3]}шт {data[2]}')
+    connection.commit()
+    cursor.close()
+    connection.close()
+    bot.answer_callback_query(call.id)
 
+def buy_all(call):
+    connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM sales WHERE username=? AND state=0', [call.message.chat.username])
+    data = cursor.fetchall()
+    cursor.execute('UPDATE sales SET state = 1 WHERE username=?', [call.message.chat.username])
+    bot.send_message(call.message.chat.id, 'Вы купили всю корзину')
+    connection.commit()
+    cursor.close()
+    connection.close()
+    bot.answer_callback_query(call.id)
 
 callback_map = {
     'delete_from_shoppingcart': delete_from_shoppingcart,
@@ -189,6 +225,8 @@ callback_map = {
     'Sneakers': ProductSheet,
     'Outwear': ProductSheet,
     'Jeans': ProductSheet,
+    'buy': buy,
+    'buy_all': buy_all
 }
 
 bot.polling(none_stop=True)
