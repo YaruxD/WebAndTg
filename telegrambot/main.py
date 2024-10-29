@@ -24,10 +24,10 @@ def welcompage(message):
     #Добавление в базу данных
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM telegram_users WHERE username = ?', (message.from_user.username,))
+    cursor.execute('SELECT * FROM telegramapp_telegramusers WHERE username = ?', (message.from_user.username,))
     telegram_user = cursor.fetchone()
     if telegram_user is None:
-        cursor.execute('INSERT INTO telegram_users(username) VALUES (?)', (message.from_user.username,))
+        cursor.execute('INSERT INTO telegramapp_telegramusers(username) VALUES (?)', (message.from_user.username,))
         connection.commit()
     cursor.close()
     connection.close()
@@ -75,14 +75,14 @@ def get_in_shoppingcart(call):
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
 
-    cursor.execute('SELECT * FROM sales WHERE username =? AND product=?;', (call.message.chat.username,(call.message.caption).split(' ')[0]))
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE username =? AND product=?;', (call.message.chat.username,(call.message.caption).split(' ')[0]))
     sale = cursor.fetchall()
     if (sale == []):
-        cursor.execute('INSERT INTO sales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
+        cursor.execute('INSERT INTO telegramapp_telegramsales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
     elif (sale[-1][4]==1):
-        cursor.execute('INSERT INTO sales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
+        cursor.execute('INSERT INTO telegramapp_telegramsales(username, product, state, amount) values(?,?,?,?)', [call.message.chat.username, (call.message.caption).split(' ')[0], 0, 1])
     else:
-        cursor.execute('UPDATE sales SET amount = amount + 1 WHERE username =? AND product =?', [call.message.chat.username, (call.message.caption).split(' ')[0]])
+        cursor.execute('UPDATE telegramapp_telegramsales SET amount = amount + 1 WHERE username =? AND product =?', [call.message.chat.username, (call.message.caption).split(' ')[0]])
  
     connection.commit()
     cursor.close()
@@ -110,7 +110,7 @@ def shoppingcart(call):
     markup.row(btn1, btn2)
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM sales WHERE state=0 AND username=?', [call.message.chat.username])
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE state=0 AND username=?', [call.message.chat.username])
     data = cursor.fetchall()
     all_price = 0
     #print(data)
@@ -120,7 +120,7 @@ def shoppingcart(call):
     else:
         bot.send_message(call.message.chat.id, '//Корзина пуста//')
     for i in data:
-        cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
+        cursor.execute('SELECT * FROM WebAndTg_catalog WHERE product=?', [i[2]])
         data2 = cursor.fetchone()
         bot.send_photo(call.message.chat.id, photo = data2[4], caption = f'{i[3]}шт. {i[2]} - {data2[5]}$ (шт)' , reply_markup=markup)
         all_price += data2[5]*int(i[3])
@@ -145,17 +145,17 @@ def delete_from_shoppingcart(call):
     markup.row(btn1)
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM sales WHERE state=0 AND username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE state=0 AND username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     data = cursor.fetchone()
     if data== None:
         pass
     elif data[3] < 2:
-        cursor.execute('DELETE FROM sales WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+        cursor.execute('DELETE FROM telegramapp_telegramsales WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     else:
-        cursor.execute('UPDATE sales SET amount = amount - 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
-        cursor.execute('SELECT * FROM sales WHERE state=0 AND username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+        cursor.execute('UPDATE telegramapp_telegramsales SET amount = amount - 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+        cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE state=0 AND username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
         data_for_residual = cursor.fetchone()
-        cursor.execute('SELECT * FROM catalog WHERE Model=?', [(call.message.caption).split(' ')[1]])
+        cursor.execute('SELECT * FROM WebAndTg_catalog WHERE product=?', [(call.message.caption).split(' ')[1]])
         data_for_photo = cursor.fetchone()
         #print(data_for_photo)
         #print(data_for_residual)
@@ -179,11 +179,10 @@ def ProductSheet(call):
 
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute(f'SELECT * FROM catalog WHERE Type = "{call.data}";')
+    cursor.execute(f'SELECT * FROM WebAndTg_catalog WHERE Type = "{call.data}";')
     data = cursor.fetchall() 
     #print(data)
     for i in range(len(data)):
-        
         bot.send_photo(call.message.chat.id, photo=data[i][4], caption=f'{data[i][2]} - {data[i][5]}$ \n{data[i][3]}', reply_markup=markup)
 
     cursor.close()
@@ -193,10 +192,10 @@ def ProductSheet(call):
 def buy(call):
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM sales WHERE username=? AND product=? AND state=0', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE username=? AND product=? AND state=0', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     data = cursor.fetchone()
-    print(data)
-    cursor.execute('UPDATE sales SET state = 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
+    #print(data)
+    cursor.execute('UPDATE telegramapp_telegramsales SET state = 1 WHERE username=? AND product=?', [call.message.chat.username, (call.message.caption).split(' ')[1]])
     bot.delete_message(call.message.chat.id, call.message.id)
 
     markup = types.InlineKeyboardMarkup()
@@ -212,9 +211,9 @@ def buy(call):
 def buy_all(call):
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM sales WHERE username=? AND state=0', [call.message.chat.username])
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE username=? AND state=0', [call.message.chat.username])
     data = cursor.fetchall()
-    cursor.execute('UPDATE sales SET state = 1 WHERE username=?', [call.message.chat.username])
+    cursor.execute('UPDATE telegramapp_telegramsales SET state = 1 WHERE username=?', [call.message.chat.username])
     bot.send_message(call.message.chat.id, 'Вы купили всю корзину')
     connection.commit()
     cursor.close()
@@ -227,11 +226,11 @@ def bought_product(call):
     markup.row(btn)
     connection = sqlite3.connect('C:/WebAndTg/WebSite/backend/db.sqlite3', check_same_thread=False)
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM sales WHERE username=? AND state=1', [call.message.chat.username])
+    cursor.execute('SELECT * FROM telegramapp_telegramsales WHERE username=? AND state=1', [call.message.chat.username])
     data = cursor.fetchall()
     
     for i in data:
-        cursor.execute('SELECT * FROM catalog WHERE Model=?', [i[2]])
+        cursor.execute('SELECT * FROM WebAndTg_catalog WHERE product=?', [i[2]])
         
         data2 = cursor.fetchone()
         bot.send_photo(call.message.chat.id, photo = data2[4], caption=f'{i[3]}шт. - {i[2]} - {data2[5]}$ (шт)', reply_markup=markup)
