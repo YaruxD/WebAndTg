@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from WebAndTg.views import ListCreateCatalog
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/Catalog', ListCreateCatalog.as_view()),
 ]
