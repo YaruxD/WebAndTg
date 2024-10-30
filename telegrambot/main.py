@@ -1,11 +1,9 @@
 import telebot
 from telebot import types
 import sqlite3
+from sensetive_data import bot_key
 
-
-
-
-bot = telebot.TeleBot('7648629772:AAHB6GsiB_V9o98zmazwvUWI-h_lxLYY5ns')
+bot = telebot.TeleBot(bot_key)
 
 #Перенаправление колбеков в callback_map
 @bot.callback_query_handler(func=lambda call: True)
