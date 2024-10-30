@@ -2,8 +2,12 @@ import telebot
 from telebot import types
 import sqlite3
 from sensetive_data import bot_key
+from dotenv import load_dotenv
+import os
 
-bot = telebot.TeleBot(bot_key)
+load_dotenv()
+
+bot = telebot.TeleBot(os.getenv("BOT_KEY"))
 
 #Перенаправление колбеков в callback_map
 @bot.callback_query_handler(func=lambda call: True)
