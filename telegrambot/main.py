@@ -1,7 +1,6 @@
 import telebot
 from telebot import types
 import sqlite3
-from sensetive_data import bot_key
 from dotenv import load_dotenv
 import os
 
