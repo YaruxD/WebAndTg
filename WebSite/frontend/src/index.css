@@ -112,13 +112,13 @@ body {
 
 .card__status {
     font-size: .8em;
-    color: #D7BDCA;
+    color: #61354b;
 }
 
 .card__description {
     padding: 0 2em 2em;
     margin: 0;
-    color: #D7BDCA;
+    color: #78435f;
     font-family: "MockFlowFont";
     display: -webkit-box;
     -webkit-box-orient: vertical;
