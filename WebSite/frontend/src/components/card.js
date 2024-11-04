@@ -13,7 +13,7 @@ export default function Card({ type, product, photo, price, description, state, 
                     </div>
                 </div>
                     <p class="card__description">{ description }</p>
-            </div>
+            </div>  
         </a> 
         </div>
     )
