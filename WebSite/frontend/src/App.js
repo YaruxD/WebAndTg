@@ -2,6 +2,7 @@ import Card from "./components/card.js"
 import axios from "axios"
 import React, { Component } from 'react';
 import Search from "./components/search.js";
+import Header from "./components/header.js";
 
 const CatalogUrl = "http://127.0.0.1:8000/api/Catalog"
 
@@ -30,6 +31,7 @@ class App extends Component {
 
         return (
             <div>
+                <div><Header></Header></div>
                 <div className="flex flex-row items-center justify-center h-screen"><Search></Search></div>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-40 gap-y-10">
                     {data.map((item, index) => (
