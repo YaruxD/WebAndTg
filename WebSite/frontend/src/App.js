@@ -32,7 +32,7 @@ class App extends Component {
         return (
             <div>
                 <div><Header></Header></div>
-                <div className="flex flex-row items-center justify-center h-screen"><Search></Search></div>
+                <div className="flex  items-center justify-center mt-400" style={{ marginTop: '280px', marginBottom: '120px' }} ><Search></Search></div>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-40 gap-y-10">
                     {data.map((item, index) => (
                         <Card
