@@ -30,8 +30,8 @@ class App extends Component {
         const { data } = this.state;
 
         return (
-            <div>
-                <div><Header></Header></div>
+            <>
+                <Header></Header>
                 <div className="flex  items-center justify-center mt-400" style={{ marginTop: '280px', marginBottom: '120px' }} ><Search></Search></div>
                 <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-40 gap-y-10">
                     {data.map((item, index) => (
@@ -44,9 +44,21 @@ class App extends Component {
                             description={item.Description}
                         />
                     ))}
+
+{data.map((item, index) => (
+                        <Card
+                            key={index}
+                            type={item.Type}
+                            product={item.Product}
+                            photo={item.Photo}
+                            price={item.Price}
+                            description={item.Description}
+                        />
+                    ))}
+                    
                     
                 </div>
-            </div>
+                </>
         );
     }
 }
