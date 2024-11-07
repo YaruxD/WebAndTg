@@ -1,6 +1,6 @@
 export default function Card({ type, product, photo, price, description, state, amount }) {
     return (
-        <div className="w-[320px] h-[320px]">
+        <div className="w-[320px] h-[320px] ">
         <a href="vk.com" class="card">
                 <img src={photo} class="card__image" alt="" />
             <div class="card__overlay">

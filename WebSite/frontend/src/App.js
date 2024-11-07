@@ -6,59 +6,56 @@ import Header from "./components/header.js";
 
 const CatalogUrl = "http://127.0.0.1:8000/api/Catalog"
 
-
-
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [], // начальное состояние
+            data: [], 
+            searchQuery: "" //поиск
         };
     }
 
     componentDidMount() {
         axios.get(CatalogUrl)
             .then((res) => {
-                this.setState({ data: res.data }); // обновление состояния
+                this.setState({ data: res.data });
             })
             .catch((error) => {
                 console.error("Error fetching data:", error);
             });
     }
 
+    handleSearch = (query) => {
+        this.setState({ searchQuery: query });
+    };
+
     render() {
-        const { data } = this.state;
+        const { data, searchQuery } = this.state;
+
+        // Фильтрация данных на основе поискового запроса
+        const filteredData = data.filter(item =>
+            item.Product.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
         return (
             <>
-                <Header></Header>
-                <div className="flex  items-center justify-center mt-400" style={{ marginTop: '280px', marginBottom: '120px' }} ><Search></Search></div>
-                <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-40 gap-y-10">
-                    {data.map((item, index) => (
-                        <Card
-                            key={index}
-                            type={item.Type}
-                            product={item.Product}
-                            photo={item.Photo}
-                            price={item.Price}
-                            description={item.Description}
-                        />
-                    ))}
-
-{data.map((item, index) => (
-                        <Card
-                            key={index}
-                            type={item.Type}
-                            product={item.Product}
-                            photo={item.Photo}
-                            price={item.Price}
-                            description={item.Description}
-                        />
-                    ))}
-                    
-                    
+                <Header />
+                <div className="flex items-center justify-center" style={{ marginTop: '280px', marginBottom: '120px' }}>
+                    <Search onSearch={this.handleSearch} />
                 </div>
-                </>
+                <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-40 gap-y-10">
+                    {filteredData.map((item, index) => (
+                        <Card
+                            key={index}
+                            type={item.Type}
+                            product={item.Product}
+                            photo={item.Photo}
+                            price={item.Price}
+                            description={item.Description}
+                        />
+                    ))}
+                </div>
+            </>
         );
     }
 }
