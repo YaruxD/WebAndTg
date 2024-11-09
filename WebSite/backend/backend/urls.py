@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from WebAndTg.views import ListCreateCatalog
+from WebAndTg.views import ListCreateCatalog, ListCreateUser
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/Catalog', ListCreateCatalog.as_view()),
+    path('api/User', ListCreateUser.as_view()),
+    path('api/Tokens', TokenObtainPairView.as_view()),
+    path('api/Tokens/Refresh', TokenRefreshView.as_view()),
 ]
