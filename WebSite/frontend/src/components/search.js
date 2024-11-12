@@ -11,7 +11,6 @@ export default function Search({ onSearch }) {
 
     return (
         <div className="input__container">
-            <div className="shadow__input"></div>
             <button className="input__button__shadow" onClick={() => onSearch(query)}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000000" width="20px" height="20px">
                     <path d="M0 0h24v24H0z" fill="none"></path>

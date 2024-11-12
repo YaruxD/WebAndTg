@@ -6,12 +6,12 @@ export default function Header() {
 <>
         <div class="container">
 		<ul class="slider-menu">
-			<li>Catalog</li>
+			<li><Link to='/'>Catalog</Link></li>
 			<li>About</li>
 			<li>Services</li>
 		</ul>
 		<ul class="signup-menu">
-			<li><Link to='/registration'><img src={UserIcon} alt=''></img></Link></li>
+			<li><Link to='/authorization'><img src={UserIcon} alt=''></img></Link></li>
 		</ul>
 </div>
 
